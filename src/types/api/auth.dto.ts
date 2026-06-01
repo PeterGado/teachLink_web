@@ -26,12 +26,30 @@ export const SignupRequestSchema = z
     path: ['confirmPassword'],
   });
 
+export const VerifyEmailRequestSchema = z.object({
+  token: z.string({ required_error: 'Verification token is required' }).min(16),
+});
+
+export const ResendVerificationRequestSchema = z.object({
+  email: z.string({ required_error: 'Email is required' }).email('Invalid email address'),
+});
+
+export const RestoreVerificationRequestSchema = z.object({
+  email: z.string({ required_error: 'Email is required' }).email('Invalid email address'),
+  backupCode: z
+    .string({ required_error: 'Backup code is required' })
+    .min(6, 'Backup code is required'),
+});
+
 // ---------------------------------------------------------------------------
 // DTO types inferred from schemas
 // ---------------------------------------------------------------------------
 
 export type LoginRequestDTO = z.infer<typeof LoginRequestSchema>;
 export type SignupRequestDTO = z.infer<typeof SignupRequestSchema>;
+export type VerifyEmailRequestDTO = z.infer<typeof VerifyEmailRequestSchema>;
+export type ResendVerificationRequestDTO = z.infer<typeof ResendVerificationRequestSchema>;
+export type RestoreVerificationRequestDTO = z.infer<typeof RestoreVerificationRequestSchema>;
 
 // ---------------------------------------------------------------------------
 // Response DTOs (re-export from shared types for co-location)

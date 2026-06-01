@@ -17,6 +17,14 @@ interface PasswordResetInput extends BaseNotificationInput {
   expiresInMinutes: number;
 }
 
+interface EmailVerificationInput extends BaseNotificationInput {
+  verificationUrl: string;
+  restoreUrl: string;
+  backupCode: string;
+  expiresInMinutes: number;
+  backupExpiresInMinutes: number;
+}
+
 interface SecurityAlertInput extends BaseNotificationInput {
   device: string;
   timestamp: string;
@@ -30,6 +38,7 @@ interface CourseEnrollmentInput extends BaseNotificationInput {
 export type NotificationEvent =
   | { type: 'welcome'; data: BaseNotificationInput }
   | { type: 'password-reset'; data: PasswordResetInput }
+  | { type: 'email-verification'; data: EmailVerificationInput }
   | { type: 'security-alert'; data: SecurityAlertInput }
   | { type: 'course-enrollment'; data: CourseEnrollmentInput };
 
@@ -66,6 +75,10 @@ export class NotificationService {
 
   sendPasswordResetEmail(data: PasswordResetInput): Promise<EmailSendResult> {
     return this.sendEvent({ type: 'password-reset', data });
+  }
+
+  sendEmailVerificationEmail(data: EmailVerificationInput): Promise<EmailSendResult> {
+    return this.sendEvent({ type: 'email-verification', data });
   }
 
   sendSecurityAlertEmail(data: SecurityAlertInput): Promise<EmailSendResult> {

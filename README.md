@@ -41,6 +41,7 @@ This frontend serves as the main user interface for interacting with TeachLink's
 - 🔐 **Starknet Wallet Integration** – Login and interact using Starknet-compatible wallets
 - 🧾 **Markdown-Based Post Editor** – Rich, previewable post creation using markdown
 - 💡 **Tipping System** – Send and receive on-chain tips via smart contracts
+- 📧 **Email Verification Recovery** – Verify accounts with token links, then resend or restore access with backup codes
 - 🌙 **Dark/Light Theme Toggle** – Accessible theming using Tailwind CSS
 - 🔎 **Dynamic Routing with App Router** – Clean, scalable navigation
 - 📂 **Profile and Topic Pages** – View user-specific content and explore topic-specific posts
@@ -89,6 +90,12 @@ NEXT_PUBLIC_INDEXER_API_URL=https://indexer.teachlink.xyz
 ```bash
 pnpm run dev
 ```
+
+4. **Email verification persistence**
+
+The verification recovery flow stores pending verification records on the server. Set
+`EMAIL_VERIFICATION_STORE_PATH` if you want to move the JSON store to a persistent volume
+outside the repository workspace.
 
 ## 🧩 Monorepo Tooling Decision
 

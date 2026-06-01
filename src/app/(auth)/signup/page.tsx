@@ -12,6 +12,7 @@ import { FormError, FieldError } from '../../../components/forms/FormError';
 import { SubmitButton } from '../../../components/forms/SubmitButton';
 import { useMutation } from '../../../hooks/useMutation';
 import { apiClient } from '@/lib/api';
+import type { AuthResponseDTO } from '@/types/api/auth.dto';
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -28,10 +29,20 @@ export default function SignupPage() {
 
   const signupMutation = useMutation(
     async (data: SignupFormData) => {
-      await apiClient.post('/api/auth/signup', data);
+      return apiClient.post<AuthResponseDTO>('/api/auth/signup', data);
     },
     {
-      onSuccess: () => {
+      onSuccess: (response) => {
+        if (response.verification?.sessionId) {
+          setSuccessMessage('Account created. Check your email to verify your address.');
+          setTimeout(() => {
+            router.push(
+              `/verify-email?email=${encodeURIComponent(response.user.email)}&sessionId=${encodeURIComponent(response.verification?.sessionId ?? '')}`,
+            );
+          }, 1500);
+          return;
+        }
+
         setSuccessMessage('Account created successfully! Redirecting...');
         setTimeout(() => router.push('/dashboard'), 1500);
       },

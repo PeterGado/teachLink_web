@@ -22,6 +22,15 @@ export const AuthResponseSchema = z.object({
   message: z.string(),
   user: UserSchema,
   token: z.string(),
+  verification: z
+    .object({
+      required: z.boolean(),
+      status: z.enum(['pending', 'verified', 'already_verified', 'expired']),
+      sessionId: z.string().optional(),
+      resendAvailableAt: z.number().int().optional(),
+      expiresAt: z.number().int().optional(),
+    })
+    .optional(),
 });
 
 export type LoginInput = z.infer<typeof LoginSchema>;

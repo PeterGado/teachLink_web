@@ -120,12 +120,20 @@ export default function LoginPage() {
             </div>
 
             <div className="flex justify-end">
-              <Link
-                href="/forgot-password"
-                className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
-              >
-                Forgot password?
-              </Link>
+              <div className="flex flex-col items-end gap-1">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
+                >
+                  Forgot password?
+                </Link>
+                <Link
+                  href="/verify-email"
+                  className="text-xs text-slate-500 hover:text-slate-700 transition-colors"
+                >
+                  Verify email or restore access
+                </Link>
+              </div>
             </div>
 
             <FormError error={loginMutation.error?.message} id="login-api-error" />

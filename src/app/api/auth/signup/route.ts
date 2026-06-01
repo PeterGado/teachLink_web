@@ -4,8 +4,13 @@ import { validateBody } from '@/lib/validation';
 import { SignupRequestSchema } from '@/types/api/auth.dto';
 import type { AuthResponseDTO, AuthErrorDTO } from '@/types/api/auth.dto';
 import { edgeLog } from '@/../infra/edge-config';
+import { notificationService } from '@/services/notifications';
+import {
+  buildVerificationMailContext,
+  createOrRestoreVerification,
+} from '@/lib/auth/email-verification';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 // ---------------------------------------------------------------------------
 // POST /api/auth/signup
@@ -47,6 +52,34 @@ export async function POST(
       );
     }
 
+    const verification = await createOrRestoreVerification({ email, name });
+    const requestOrigin = request.headers.get('origin') ?? new URL(request.url).origin;
+
+    if (verification.verificationToken && verification.backupCode) {
+      const mailContext = buildVerificationMailContext(
+        verification.verificationToken,
+        verification.backupCode,
+        requestOrigin,
+      );
+
+      const sendResult = await notificationService.sendEmailVerificationEmail({
+        email,
+        name,
+        verificationUrl: mailContext.verificationUrl,
+        restoreUrl: mailContext.restoreUrl,
+        backupCode: mailContext.backupCode,
+        expiresInMinutes: mailContext.expiresInMinutes,
+        backupExpiresInMinutes: mailContext.backupExpiresInMinutes,
+      });
+
+      if (!sendResult.success) {
+        edgeLog('warn', '/api/auth/signup', 'verification email could not be queued', {
+          email,
+          error: sendResult.error,
+        });
+      }
+    }
+
     return addHeaders(
       NextResponse.json(
         {
@@ -57,6 +90,13 @@ export async function POST(
             email,
           },
           token: `mock-jwt-token-${Date.now()}`,
+          verification: {
+            required: true,
+            status: verification.summary.status,
+            sessionId: verification.summary.sessionId,
+            resendAvailableAt: verification.summary.resendAvailableAt,
+            expiresAt: verification.summary.tokenExpiresAt,
+          },
         },
         { status: 201 },
       ),
